@@ -293,6 +293,7 @@ let HAction = cc.Class({
     {
         if (this._actionComponent)
         {
+            this._state = STATE.DEAD;
             this._actionComponent.addActionToInvalidList(this);
         }else
         {

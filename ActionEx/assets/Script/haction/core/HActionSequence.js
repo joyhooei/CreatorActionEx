@@ -51,6 +51,11 @@ let HActionSequence =  cc.Class({
     $update:function (dt)
     {
         this._super(dt);
+        if (!this._actions)
+        {
+            this.$actionComplete();
+            return;
+        }
         let flag = true;
         let len = this._actions.length;
         for (let i= 0;i<len;i++)
@@ -84,13 +89,16 @@ let HActionSequence =  cc.Class({
     {
         let sequence = new HActionSequence();
         sequence.init(this.getVars());
-        let list = [];
-        this._actions.forEach(function (action)
+        if (this._actions)
         {
-            list.push( action.clone() );
-        });
-        sequence.pushAction(list,false);
-        list = null;
+            let list = [];
+            this._actions.forEach(function (action)
+            {
+                list.push( action.clone() );
+            });
+            sequence.pushAction(list,false);
+            list = null;
+        }
         return sequence;
     },
     $invalid:function()
@@ -98,6 +106,7 @@ let HActionSequence =  cc.Class({
         if (!this._actions)
         {
             cc.warn(" HActionSequence 重复调用$invalid ");
+            this._super();
             return;
         }
         this._actions.forEach(function (action)

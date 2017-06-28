@@ -50,6 +50,11 @@ let HActionSpawn =  cc.Class({
     $update:function (dt)
     {
         this._super(dt);
+        if (!this._actions)
+        {
+            this.$actionComplete();
+            return;
+        }
         let flag = true;
         let len = this._actions.length;
         for (let i= 0;i<len;i++)
@@ -79,13 +84,16 @@ let HActionSpawn =  cc.Class({
     {
         let spawn = new HActionSpawn();
         spawn.init(this.getVars());
-        let list = [];
-        this._actions.forEach(function (action)
+        if (this._actions)
         {
-            list.push(action);
-        });
-        spawn.pushAction(list,false);
-        list = null;
+            let list = [];
+            this._actions.forEach(function (action)
+            {
+                list.push(action);
+            });
+            spawn.pushAction(list,false);
+            list = null;
+        }
         return spawn;
     },
     $invalid:function()
@@ -93,6 +101,7 @@ let HActionSpawn =  cc.Class({
         if (!this._actions)
         {
             cc.warn(" HActionSpawn 重复调用$invalid ");
+            this._super();
             return;
         }
         this._actions.forEach(function (action)
