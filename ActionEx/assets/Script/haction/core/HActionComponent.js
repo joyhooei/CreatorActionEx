@@ -58,7 +58,7 @@ module.exports = cc.Class({
             if (_action["$uuid"] === uuid)
             {
                 utils.invalidActionAndNext(_action);
-                this._tempInvalidIds[_action["$uuid"]] = 1;
+                this._tempInvalidIds[_action["$uuid"]] = true;
                 return true;
             }else
             {
@@ -83,7 +83,7 @@ module.exports = cc.Class({
         let len = this.__hActions.length;
         for (let i= 0;i < len;i++)
         {
-            this._tempInvalidIds[this.__hActions[i]["$uuid"]] = 1;
+            this._tempInvalidIds[this.__hActions[i]["$uuid"]] = true;
             utils.invalidActionAndNext( this.__hActions[i] );
         }
         this.__hActions = [];
@@ -121,7 +121,7 @@ module.exports = cc.Class({
                     this.__hActions[i] = nexthAction;
                 }else
                 {
-                    this._tempInvalidIds[hAction["$uuid"]] = 1; // 标记该action要删除掉
+                    this._tempInvalidIds[hAction["$uuid"]] = true; // 标记该action要删除掉
                 }
                 hAction.$invalid();
                 break;
@@ -135,27 +135,23 @@ module.exports = cc.Class({
     // called every frame
     update: function (dt)
     {
-        if (this._invalidActionList.length > 0)
-        {
+        if (this._invalidActionList.length > 0) {
             this._invalidActionList.forEach(_destroyFunc);
             this._invalidActionList = [];
         }
+        let _tempInvalidIds = this._tempInvalidIds;
         let arr = this.__hActions;
-        for(let i=0,flag=true,len=arr.length;i<len;flag ? i++ : i){
-
-            if( arr[i] && this._tempInvalidIds[ arr[i]["$uuid"] ] ){
-                arr.splice(i,1);
-                flag = false;
-            } else {
-                flag = true;
+        this.__hActions = arr.filter(function ( haction,index,self ) {
+            if (_tempInvalidIds[haction["$uuid"]]) {
+                return false;
             }
-        }
+            return true;
+        });
         this._tempInvalidIds = {};
-        if (this._isPaused)
-        {
+        if (this._isPaused) {
             return;
         }
-        arr.forEach(function (action) {
+        this.__hActions.forEach(function (action) {
             action["_$update"](dt);
         });
     },
